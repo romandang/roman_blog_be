@@ -14,18 +14,17 @@ export class AuthService {
   ) {}
 
   async signIn(signInDto: SignInDTO) {
-    const payload = { sub: 'test', username: 'test' };
-    return {
-      access_token: await this.jwtService.signAsync(payload),
-    };
-  }
-
-  async signUp(signUpDto: SignUpDTO) {
-    const data = await this.strapiService.getAllArticle();
+    const data = await this.strapiService.signIn(signInDto);
     return data;
   }
 
-  updateProfile(updateProfileDto: UpdateProfileDTO) {
-    return `User update profile`;
+  async signUp(signUpDto: SignUpDTO) {
+    const data = await this.strapiService.signUp(signUpDto);
+    return data;
+  }
+
+  async updateProfile(id: string, updateProfileDto: UpdateProfileDTO) {
+    const data = await this.strapiService.updateProfile(id, updateProfileDto);
+    return data;
   }
 }

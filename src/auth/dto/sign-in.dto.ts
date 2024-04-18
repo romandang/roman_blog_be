@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export interface ISignIn {
-  username: string;
+  identifier: string;
   password: string;
 }
 
@@ -9,7 +9,7 @@ export class SignInDTO implements ISignIn {
   @ApiProperty({
     type: String,
   })
-  username: string;
+  identifier: string;
 
   @ApiProperty({
     type: String,
