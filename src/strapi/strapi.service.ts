@@ -11,6 +11,12 @@ type API = {
     SIGN_IN: string;
     UPDATE_PROFILE: string;
   };
+  CATEGORY: {
+    GET_ALL_CATEGORY: string;
+  };
+  INTERACTIVE: {
+    COMMENT: string;
+  };
 };
 
 @Injectable()
@@ -30,6 +36,12 @@ export class StrapiService {
         SIGN_UP: `${this.CMS_URL}/auth/local/register`,
         SIGN_IN: `${this.CMS_URL}/auth/local`,
         UPDATE_PROFILE: `${this.CMS_URL}/users`,
+      },
+      CATEGORY: {
+        GET_ALL_CATEGORY: `${this.CMS_URL}/categories`,
+      },
+      INTERACTIVE: {
+        COMMENT: `${this.CMS_URL}/commentings`,
       },
     };
   }
@@ -88,6 +100,51 @@ export class StrapiService {
     try {
       const response = await this.fetchData(this.API.ARTICLE.GET_ALL_ARTICLE, {
         method: METHOD.GET,
+      });
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async getArticleById(id) {
+    try {
+      const response = await this.fetchData(
+        `${this.API.ARTICLE.GET_ALL_ARTICLE}/${id}`,
+        {
+          method: METHOD.GET,
+        },
+      );
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async getAllCategory() {
+    try {
+      const response = await this.fetchData(
+        `${this.API.CATEGORY.GET_ALL_CATEGORY}`,
+        {
+          method: METHOD.GET,
+        },
+      );
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async comment(id, data) {
+    try {
+      const response = await this.fetchData(`${this.API.INTERACTIVE.COMMENT}`, {
+        method: METHOD.POST,
+        body: JSON.stringify({
+          data: {
+            userId: id,
+            ...data,
+          },
+        }),
       });
       return response;
     } catch (error) {

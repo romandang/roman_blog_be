@@ -5,13 +5,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
-    .setTitle('Cats example')
-    .setDescription('The cats API description')
+    .setTitle('Roman Blog')
+    .setDescription('This api for Roman Blog System')
     .setVersion('1.0')
     .addBearerAuth(
       {
         type: 'http',
-        scheme: 'bearer',
         bearerFormat: 'JWT',
         name: 'JWT',
         description: 'Enter JWT token',
