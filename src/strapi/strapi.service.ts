@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { METHOD } from 'src/common/constants';
 
@@ -53,14 +53,26 @@ export class StrapiService {
   }
 
   private async fetchData(url, params) {
-    const data = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${this.CMS_ADMIN_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-      ...params,
-    });
-    return data.json();
+    try {
+      const data = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${this.CMS_ADMIN_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        ...params,
+      });
+      switch (data.status) {
+        case 400:
+          throw new HttpException('error', HttpStatus.BAD_REQUEST);
+
+        default:
+          break;
+      }
+
+      return data.json();
+    } catch (error) {
+      throw error;
+    }
   }
 
   async signUp(data) {
@@ -71,7 +83,7 @@ export class StrapiService {
       });
       return response;
     } catch (error) {
-      console.log(error);
+      throw error;
     }
   }
 
@@ -83,7 +95,7 @@ export class StrapiService {
       });
       return response;
     } catch (error) {
-      console.log(error);
+      throw error;
     }
   }
 

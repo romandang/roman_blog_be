@@ -8,5 +8,20 @@ export const METHOD = {
   GET: 'GET',
   PUT: 'PUT',
   PATCH: 'PATCH',
-  DELETE: 'DELETE'
-}
+  DELETE: 'DELETE',
+};
+
+export const ERROR_MESSAGE = {
+  AUTH: {
+    LOGIN_FAIL: 'Your username or password is incorrect!',
+    REGISTER_FAIL:
+      "We can't creating your account at the moment! Please try again later.",
+  },
+};
+
+export const MESSAGE = {
+  AUTH: {
+    REGISTER_SUCCESS:
+      "Hey! Your account has been created. Let's enjoying your journey.",
+  },
+};

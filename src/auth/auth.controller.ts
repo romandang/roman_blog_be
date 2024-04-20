@@ -1,5 +1,16 @@
-import { Body, Controller, Param, Patch, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpStatus,
+  Param,
+  Post,
+  Put,
+  Res,
+} from '@nestjs/common';
 import { ApiParam, ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
+import { customResponse } from 'src/common/common';
+import { ERROR_MESSAGE, MESSAGE } from 'src/common/constants';
 import { AuthService } from './auth.service';
 import { SignInDTO } from './dto/sign-in.dto';
 import { SignUpDTO } from './dto/sign-up.dto';
@@ -11,13 +22,49 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('/signUp')
-  SignUp(@Body() createAuthDto: SignUpDTO) {
-    return this.authService.signUp(createAuthDto);
+  async SignUp(@Body() createAuthDto: SignUpDTO, @Res() res: Response) {
+    try {
+      await this.authService.signUp(createAuthDto);
+      res.status(HttpStatus.CREATED);
+      return res.send(
+        customResponse({
+          statusCode: HttpStatus.CREATED,
+          message: MESSAGE.AUTH.REGISTER_SUCCESS,
+        }),
+      );
+    } catch (error) {
+      res.statusCode = error.status;
+      return res.send(
+        customResponse({
+          statusCode: error.status,
+          message: ERROR_MESSAGE.AUTH.REGISTER_FAIL,
+        }),
+      );
+    }
   }
 
   @Post('/signIn')
-  SignIn(@Body() createAuthDto: SignInDTO) {
-    return this.authService.signIn(createAuthDto);
+  async SignIn(@Body() createAuthDto: SignInDTO, @Res() res: Response) {
+    try {
+      const response = await this.authService.signIn(createAuthDto);
+      res.statusCode = HttpStatus.OK;
+      return res.send(
+        customResponse({
+          statusCode: HttpStatus.OK,
+          data: {
+            access_token: response?.jwt,
+          },
+        }),
+      );
+    } catch (error) {
+      res.statusCode = error.status;
+      return res.send(
+        customResponse({
+          statusCode: error.status,
+          message: ERROR_MESSAGE.AUTH.LOGIN_FAIL,
+        }),
+      );
+    }
   }
 
   @ApiParam({
