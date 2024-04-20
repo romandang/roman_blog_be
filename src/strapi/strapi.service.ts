@@ -5,6 +5,7 @@ import { METHOD } from 'src/common/constants';
 type API = {
   ARTICLE: {
     GET_ALL_ARTICLE: string;
+    GET_ALL_COMMENT_BY_ARTICLE: string;
   };
   USER: {
     SIGN_UP: string;
@@ -16,6 +17,8 @@ type API = {
   };
   INTERACTIVE: {
     COMMENT: string;
+    LIKE: string;
+    VIEW: string;
   };
 };
 
@@ -31,6 +34,7 @@ export class StrapiService {
     this.API = {
       ARTICLE: {
         GET_ALL_ARTICLE: `${this.CMS_URL}/articles`,
+        GET_ALL_COMMENT_BY_ARTICLE: `${this.CMS_URL}/commentings?populate=userId&filters[articleId][id][$eq]`,
       },
       USER: {
         SIGN_UP: `${this.CMS_URL}/auth/local/register`,
@@ -42,6 +46,8 @@ export class StrapiService {
       },
       INTERACTIVE: {
         COMMENT: `${this.CMS_URL}/commentings`,
+        LIKE: `${this.CMS_URL}/likings`,
+        VIEW: `${this.CMS_URL}/viewings`,
       },
     };
   }
@@ -146,6 +152,51 @@ export class StrapiService {
           },
         }),
       });
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async view(data) {
+    try {
+      const response = await this.fetchData(`${this.API.INTERACTIVE.VIEW}`, {
+        method: METHOD.POST,
+        body: JSON.stringify({
+          data: data,
+        }),
+      });
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async like(id, data) {
+    try {
+      const response = await this.fetchData(`${this.API.INTERACTIVE.LIKE}`, {
+        method: METHOD.POST,
+        body: JSON.stringify({
+          data: {
+            userId: id,
+            ...data,
+          },
+        }),
+      });
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async getAllCommentByArticle(id) {
+    try {
+      const response = await this.fetchData(
+        `${this.API.ARTICLE.GET_ALL_COMMENT_BY_ARTICLE}=${id}`,
+        {
+          method: METHOD.GET,
+        },
+      );
       return response;
     } catch (error) {
       console.log(error);

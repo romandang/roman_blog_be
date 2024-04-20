@@ -4,7 +4,7 @@ export class CommentInteractiveDto {
   @ApiProperty({
     type: String,
   })
-  idArticle: string;
+  articleId: string;
 
   @ApiProperty({
     type: String,

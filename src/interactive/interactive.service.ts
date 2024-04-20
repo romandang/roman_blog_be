@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { CommentInteractiveDto } from './dto/comment-interactive.dto copy';
 import { StrapiService } from 'src/strapi/strapi.service';
+import { CommentInteractiveDto } from './dto/comment-interactive.dto';
+import { ViewInteractiveDto } from './dto/view-interactive.dto';
+import { LikeInteractiveDto } from './dto/like-interactive.dto';
 
 @Injectable()
 export class InteractiveService {
@@ -11,6 +13,24 @@ export class InteractiveService {
         id,
         commentInteractiveDto,
       );
+      return response;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async view(viewInteractiveDto: ViewInteractiveDto) {
+    try {
+      const response = await this.strapiService.view(viewInteractiveDto);
+      return response;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async like(id: string, likeInteractiveDto: LikeInteractiveDto) {
+    try {
+      const response = await this.strapiService.like(id, likeInteractiveDto);
       return response;
     } catch (error) {
       return error;

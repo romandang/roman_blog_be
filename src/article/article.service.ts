@@ -22,4 +22,13 @@ export class ArticleService {
       return error;
     }
   }
+
+  async getAllCommentByArticle(id) {
+    try {
+      const response = await this.strapiService.getAllCommentByArticle(id);
+      return response;
+    } catch (error) {
+      return error;
+    }
+  }
 }

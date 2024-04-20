@@ -16,4 +16,9 @@ export class ArticleController {
   getArticleById(@Param('id') id: string) {
     return this.articleService.getArticleById(id);
   }
+
+  @Get('/getAllCommentByArticle/:id')
+  getAllCommentByArticle(@Param('id') id: string) {
+    return this.articleService.getAllCommentByArticle(id);
+  }
 }
