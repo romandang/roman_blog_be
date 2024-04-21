@@ -33,7 +33,7 @@ export class AuthController {
         }),
       );
     } catch (error) {
-      res.statusCode = error.status;
+      res.status(error.status);
       return res.send(
         customResponse({
           statusCode: error.status,
@@ -47,7 +47,7 @@ export class AuthController {
   async SignIn(@Body() createAuthDto: SignInDTO, @Res() res: Response) {
     try {
       const response = await this.authService.signIn(createAuthDto);
-      res.statusCode = HttpStatus.OK;
+      res.status(HttpStatus.OK);
       return res.send(
         customResponse({
           statusCode: HttpStatus.OK,
@@ -57,7 +57,7 @@ export class AuthController {
         }),
       );
     } catch (error) {
-      res.statusCode = error.status;
+      res.status(error.status);
       return res.send(
         customResponse({
           statusCode: error.status,
@@ -72,7 +72,28 @@ export class AuthController {
     required: true,
   })
   @Put('/updateProfile/:id')
-  UpdateProfile(@Param('id') id, @Body() createAuthDto: UpdateProfileDTO) {
-    return this.authService.updateProfile(id, createAuthDto);
+  async UpdateProfile(
+    @Param('id') id,
+    @Body() createAuthDto: UpdateProfileDTO,
+    @Res() res: Response,
+  ) {
+    try {
+      await this.authService.updateProfile(id, createAuthDto);
+      res.status(HttpStatus.OK);
+      res.send(
+        customResponse({
+          statusCode: HttpStatus.OK,
+          message: MESSAGE.AUTH.UPDATE_PROFILE_SUCCESS,
+        }),
+      );
+    } catch (error) {
+      res.status(error.status);
+      res.send(
+        customResponse({
+          statusCode: error.status,
+          message: ERROR_MESSAGE.AUTH.UPDATE_PROFILE_FAIL,
+        }),
+      );
+    }
   }
 }

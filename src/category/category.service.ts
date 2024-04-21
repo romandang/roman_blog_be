@@ -12,7 +12,7 @@ export class CategoryService {
       const response = await this.strapiService.getAllCategory();
       return response;
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 }

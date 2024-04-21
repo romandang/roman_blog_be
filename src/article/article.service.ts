@@ -10,7 +10,7 @@ export class ArticleService {
       const response = await this.strapiService.getAllArticle();
       return response;
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 
@@ -19,7 +19,7 @@ export class ArticleService {
       const response = await this.strapiService.getArticleById(id);
       return response;
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 

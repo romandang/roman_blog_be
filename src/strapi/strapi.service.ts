@@ -110,7 +110,7 @@ export class StrapiService {
       );
       return response;
     } catch (error) {
-      console.log(error);
+      throw error;
     }
   }
 
@@ -121,7 +121,7 @@ export class StrapiService {
       });
       return response;
     } catch (error) {
-      console.log(error);
+      throw error;
     }
   }
 
@@ -135,7 +135,7 @@ export class StrapiService {
       );
       return response;
     } catch (error) {
-      console.log(error);
+      throw error;
     }
   }
 
@@ -149,7 +149,7 @@ export class StrapiService {
       );
       return response;
     } catch (error) {
-      console.log(error);
+      throw error;
     }
   }
 
@@ -166,7 +166,7 @@ export class StrapiService {
       });
       return response;
     } catch (error) {
-      console.log(error);
+      throw error;
     }
   }
 
@@ -180,7 +180,7 @@ export class StrapiService {
       });
       return response;
     } catch (error) {
-      console.log(error);
+      throw error;
     }
   }
 
@@ -197,7 +197,7 @@ export class StrapiService {
       });
       return response;
     } catch (error) {
-      console.log(error);
+      throw error;
     }
   }
 
@@ -211,7 +211,7 @@ export class StrapiService {
       );
       return response;
     } catch (error) {
-      console.log(error);
+      throw error;
     }
   }
 }
