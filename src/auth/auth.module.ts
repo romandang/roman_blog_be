@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from 'src/common/constants';
-import { StrapiModule } from 'src/strapi/strapi.module';
 import { StrapiService } from 'src/strapi/strapi.service';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
 
 @Module({
   imports: [
@@ -17,4 +16,4 @@ import { StrapiService } from 'src/strapi/strapi.service';
   controllers: [AuthController],
   providers: [AuthService, StrapiService],
 })
-export class AuthModule {}
+export class AuthModule { }

@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { METHOD } from 'src/common/constants';
+const qs = require('qs');
 
 type API = {
   ARTICLE: {
@@ -47,7 +48,7 @@ export class StrapiService {
       INTERACTIVE: {
         COMMENT: `${this.CMS_URL}/commentings`,
         LIKE: `${this.CMS_URL}/likings`,
-        VIEW: `${this.CMS_URL}/viewings`,
+        VIEW: `${this.CMS_URL}/custom-article/view`,
       },
     };
   }
@@ -115,10 +116,27 @@ export class StrapiService {
   }
 
   async getAllArticle() {
+    const query = qs.stringify(
+      {
+        fields: ['title', 'content'],
+        populate: {
+          thumbnail: {
+            fields: ['url'],
+          },
+        },
+      },
+      {
+        encodeValuesOnly: true, // prettify URL
+      },
+    );
+
     try {
-      const response = await this.fetchData(this.API.ARTICLE.GET_ALL_ARTICLE, {
-        method: METHOD.GET,
-      });
+      const response = await this.fetchData(
+        `${this.API.ARTICLE.GET_ALL_ARTICLE}?${query}`,
+        {
+          method: METHOD.GET,
+        },
+      );
       return response;
     } catch (error) {
       throw error;
@@ -173,7 +191,7 @@ export class StrapiService {
   async view(data) {
     try {
       const response = await this.fetchData(`${this.API.INTERACTIVE.VIEW}`, {
-        method: METHOD.POST,
+        method: METHOD.PATCH,
         body: JSON.stringify({
           data: data,
         }),

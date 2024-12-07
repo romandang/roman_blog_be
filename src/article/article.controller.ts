@@ -53,7 +53,7 @@ export class ArticleController {
         }),
       );
     } catch (error) {
-      res.status(error.status);
+      res.status(error.status || 500);
       return res.send(
         customResponse({
           statusCode: error.status,

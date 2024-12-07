@@ -6,7 +6,7 @@ import { LikeInteractiveDto } from './dto/like-interactive.dto';
 
 @Injectable()
 export class InteractiveService {
-  constructor(private strapiService: StrapiService) {}
+  constructor(private strapiService: StrapiService) { }
   async comment(id: string, commentInteractiveDto: CommentInteractiveDto) {
     try {
       const response = await this.strapiService.comment(
@@ -24,7 +24,7 @@ export class InteractiveService {
       const response = await this.strapiService.view(viewInteractiveDto);
       return response;
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 

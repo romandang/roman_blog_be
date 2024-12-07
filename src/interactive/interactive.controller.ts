@@ -20,7 +20,7 @@ import { ERROR_MESSAGE, MESSAGE } from 'src/common/constants';
 @ApiBearerAuth('JWT-auth')
 @Controller('/api/interactive')
 export class InteractiveController {
-  constructor(private readonly interactiveService: InteractiveService) {}
+  constructor(private readonly interactiveService: InteractiveService) { }
 
   @Post('/comment')
   async comment(
@@ -62,12 +62,12 @@ export class InteractiveController {
     @Res() res: Response,
   ) {
     try {
-      await this.interactiveService.view(viewInteractiveDto);
+      const data = await this.interactiveService.view(viewInteractiveDto);
       res.status(HttpStatus.OK);
       res.send(
         customResponse({
           statusCode: HttpStatus.OK,
-          message: MESSAGE.INTERACTIVE.ACTION_SENT,
+          data,
         }),
       );
     } catch (error) {
