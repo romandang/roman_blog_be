@@ -29,10 +29,12 @@ export class ArticleController {
   @ApiQuery({
     name: ARTICLE_FILTER.PAGE,
     type: String,
+    required: false,
   })
   @ApiQuery({
     name: ARTICLE_FILTER.ITEMS_PER_PAGE,
     type: String,
+    required: false,
   })
   @Get('/getAllArticle')
   async getAllArticle(
@@ -44,12 +46,18 @@ export class ArticleController {
     @Res() res: Response,
   ) {
     try {
-      const response = await this.articleService.getAllArticle();
+      const response = await this.articleService.getAllArticle({
+        sort_by: sortBy,
+        category,
+        userId,
+        page,
+        items_per_page: itemPerPage
+      });
       res.status(HttpStatus.OK);
       return res.send(
         customResponse({
           statusCode: HttpStatus.OK,
-          data: response.data,
+          data: response,
         }),
       );
     } catch (error) {

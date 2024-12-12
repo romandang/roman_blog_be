@@ -5,9 +5,9 @@ import { StrapiService } from 'src/strapi/strapi.service';
 export class ArticleService {
   constructor(private strapiService: StrapiService) {}
 
-  async getAllArticle() {
+  async getAllArticle(params) {
     try {
-      const response = await this.strapiService.getAllArticle();
+      const response = await this.strapiService.getAllArticle(params);
       return response;
     } catch (error) {
       throw error;

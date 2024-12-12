@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { METHOD } from 'src/common/constants';
+import { omitBy, isNil } from 'lodash'
 const qs = require('qs');
 
 type API = {
@@ -12,6 +13,7 @@ type API = {
     SIGN_UP: string;
     SIGN_IN: string;
     UPDATE_PROFILE: string;
+    GET_USER_INFO: string
   };
   CATEGORY: {
     GET_ALL_CATEGORY: string;
@@ -34,20 +36,21 @@ export class StrapiService {
     this.CMS_ADMIN_TOKEN = this.configService.get<string>('CMS_ADMIN_TOKEN');
     this.API = {
       ARTICLE: {
-        GET_ALL_ARTICLE: `${this.CMS_URL}/articles`,
+        GET_ALL_ARTICLE: `${this.CMS_URL}/custom-article/getTopArticle`,
         GET_ALL_COMMENT_BY_ARTICLE: `${this.CMS_URL}/commentings?populate=userId&filters[articleId][id][$eq]`,
       },
       USER: {
         SIGN_UP: `${this.CMS_URL}/auth/local/register`,
         SIGN_IN: `${this.CMS_URL}/auth/local`,
         UPDATE_PROFILE: `${this.CMS_URL}/users`,
+        GET_USER_INFO: `${this.CMS_URL}/users`,
       },
       CATEGORY: {
         GET_ALL_CATEGORY: `${this.CMS_URL}/categories`,
       },
       INTERACTIVE: {
-        COMMENT: `${this.CMS_URL}/commentings`,
-        LIKE: `${this.CMS_URL}/likings`,
+        COMMENT: `${this.CMS_URL}/custom-article/comment`,
+        LIKE: `${this.CMS_URL}/custom-article/like`,
         VIEW: `${this.CMS_URL}/custom-article/view`,
       },
     };
@@ -85,14 +88,17 @@ export class StrapiService {
       return response;
     } catch (error) {
       throw error;
-    }
+    }   
   }
 
   async signIn(data) {
     try {
       const response = await this.fetchData(this.API.USER.SIGN_IN, {
         method: METHOD.POST,
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          identifier: data.username,
+          password: data.password
+        }),
       });
       return response;
     } catch (error) {
@@ -115,24 +121,24 @@ export class StrapiService {
     }
   }
 
-  async getAllArticle() {
-    const query = qs.stringify(
-      {
-        fields: ['title', 'content'],
-        populate: {
-          thumbnail: {
-            fields: ['url'],
-          },
-        },
-      },
-      {
-        encodeValuesOnly: true, // prettify URL
-      },
-    );
-
+  async getUserInfo(userId) {
+    console.log(userId)
     try {
       const response = await this.fetchData(
-        `${this.API.ARTICLE.GET_ALL_ARTICLE}?${query}`,
+        `${this.API.USER.GET_USER_INFO}/${userId}?&populate[0]=avatar`,
+{method:METHOD.GET}
+      );
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getAllArticle(params) {
+    const queryString = new URLSearchParams(omitBy(params, isNil));
+    try {
+      const response = await this.fetchData(
+        `${this.API.ARTICLE.GET_ALL_ARTICLE}?${queryString}`,
         {
           method: METHOD.GET,
         },
@@ -191,9 +197,9 @@ export class StrapiService {
   async view(data) {
     try {
       const response = await this.fetchData(`${this.API.INTERACTIVE.VIEW}`, {
-        method: METHOD.PATCH,
+        method: METHOD.POST,
         body: JSON.stringify({
-          data: data,
+          data,
         }),
       });
       return response;

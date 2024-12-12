@@ -3,6 +3,7 @@ import { StrapiService } from 'src/strapi/strapi.service';
 import { SignInDTO } from './dto/sign-in.dto';
 import { SignUpDTO } from './dto/sign-up.dto';
 import { UpdateProfileDTO } from './dto/update-profile.dto';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Injectable()
 export class AuthService {
@@ -15,6 +16,11 @@ export class AuthService {
 
   async signUp(signUpDto: SignUpDTO) {
     const data = await this.strapiService.signUp(signUpDto);
+    return data;
+  }
+
+  async getUserInfo(id: string) {
+    const data = await this.strapiService.getUserInfo(id);
     return data;
   }
 

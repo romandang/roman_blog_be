@@ -1,15 +1,18 @@
+import { cleanData } from "utils/helpers";
+
 export const customResponse = ({ statusCode, message = '', data = null }) => {
   let currentResponse: any = {
     statusCode,
     response: {},
   };
 
-  if (data)
+
+  if (data){
     currentResponse = {
       ...currentResponse,
-      response: { ...currentResponse.response, data },
+      response: { ...currentResponse.response, data: cleanData(data) },
     };
-
+  }
   if (message) {
     currentResponse = {
       ...currentResponse,
@@ -18,4 +21,4 @@ export const customResponse = ({ statusCode, message = '', data = null }) => {
   }
 
   return currentResponse;
-};
+}

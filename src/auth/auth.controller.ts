@@ -1,25 +1,35 @@
 import {
   Body,
   Controller,
+  Get,
   HttpStatus,
   Param,
   Post,
   Put,
+  Req,
   Res,
+  UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiParam, ApiTags } from '@nestjs/swagger';
-import { Response } from 'express';
+import { JwtService } from '@nestjs/jwt';
+import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
+import { Request, Response } from 'express';
+import CacheManager from 'src/cache/CacheManager';
 import { customResponse } from 'src/common/common';
 import { ERROR_MESSAGE, MESSAGE } from 'src/common/constants';
+import { getUserIdFromJwt } from 'utils/helpers';
+import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { SignInDTO } from './dto/sign-in.dto';
 import { SignUpDTO } from './dto/sign-up.dto';
 import { UpdateProfileDTO } from './dto/update-profile.dto';
+import { get } from 'lodash/get'
 
 @ApiTags('Auth')
+@ApiBearerAuth("JWT-auth")
 @Controller('/api/auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService, private jwtService: JwtService, private cacheManager: CacheManager) {}
 
   @Post('/signUp')
   async SignUp(@Body() createAuthDto: SignUpDTO, @Res() res: Response) {
@@ -47,12 +57,17 @@ export class AuthController {
   async SignIn(@Body() createAuthDto: SignInDTO, @Res() res: Response) {
     try {
       const response = await this.authService.signIn(createAuthDto);
+      const jwt = await this.jwtService.signAsync({
+        ...createAuthDto,
+        id: getUserIdFromJwt(response?.jwt),
+      });
+      
       res.status(HttpStatus.OK);
       return res.send(
         customResponse({
           statusCode: HttpStatus.OK,
           data: {
-            access_token: response?.jwt,
+            access_token: jwt,
           },
         }),
       );
@@ -66,6 +81,44 @@ export class AuthController {
       );
     }
   }
+
+  @UseGuards(AuthGuard)
+  @Get('/getUserInfo')
+  async GetUserInfo(@Req() req: Request ,@Res() res: Response) {
+    try {
+      const token = req.headers.authorization;
+
+      if (!token) throw new UnauthorizedException("Unauthorize")
+
+      const id = getUserIdFromJwt(token);
+      const response = await this.authService.getUserInfo(id);
+      const { email, authorName, firstName, lastName, alias, phoneNumber, avatar } = response
+      res.status(HttpStatus.OK);
+      return res.send(
+        customResponse({
+          statusCode: HttpStatus.OK,
+          data: {
+            email,
+            authorName,
+            firstName,
+            lastName,
+            alias,
+            phoneNumber,
+            avatar
+          },
+        }),
+      );
+    } catch (error) {
+      res.status(error.status);
+      return res.send(
+        customResponse({
+          statusCode: error.status,
+          message: ERROR_MESSAGE.AUTH.LOGIN_FAIL,
+        }),
+      );
+    }
+  }
+  
 
   @ApiParam({
     name: 'id',
