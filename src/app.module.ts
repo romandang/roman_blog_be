@@ -8,6 +8,7 @@ import { CategoryModule } from './category/category.module';
 import { InteractiveModule } from './interactive/interactive.module';
 import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { NextjsModule } from './nextjs/nextjs.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
     ArticleModule,
     CategoryModule,
     InteractiveModule,
+    NextjsModule,
   ],
   controllers: [AppController],
   providers: [AppService, {

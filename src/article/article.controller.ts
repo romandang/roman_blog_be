@@ -1,10 +1,10 @@
 import { Controller, Get, HttpStatus, Param, Query, Res } from '@nestjs/common';
-import { ArticleService } from './article.service';
-import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { customResponse } from 'src/common/common';
 import { ERROR_MESSAGE } from 'src/common/constants';
 import { SortBy } from 'src/common/types';
+import { ArticleService } from './article.service';
 import { ARTICLE_FILTER } from './constants/query';
 
 @ApiTags('Article')

@@ -122,7 +122,6 @@ export class StrapiService {
   }
 
   async getUserInfo(userId) {
-    console.log(userId)
     try {
       const response = await this.fetchData(
         `${this.API.USER.GET_USER_INFO}/${userId}?&populate[0]=avatar`,

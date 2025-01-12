@@ -1,5 +1,5 @@
 import { JwtPayload, jwtDecode } from 'jwt-decode';
-import isNull from 'lodash/isNull'
+import * as lodash from 'lodash';
 
 export const getUserIdFromJwt = (jwt) => {
   try {
@@ -11,14 +11,16 @@ export const getUserIdFromJwt = (jwt) => {
 };
 
 export const cleanData = (data) => {
-  if (typeof data !== "object" || !data) return data;
+  if (typeof data !== 'object' || !data) return data;
   const newObj = {};
 
   for (const key of Object.keys(data)) {
     let value = data[key];
-    if (value === null) value = ""
-    Object.assign(newObj, { [key]: value })
+    if (value === null) value = '';
+    Object.assign(newObj, { [key]: value });
   }
 
   return newObj;
-}
+};
+
+export const _ = lodash;
