@@ -2,9 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { CreateNextjDto } from './dto/create-nextj.dto';
 import { UpdateNextjDto } from './dto/update-nextj.dto';
 import { ArticleService } from 'src/article/article.service';
-import { _ } from 'utils/helpers';
+import { _, pickFieldsOnArrayObject, returnEmptyData } from 'utils/helpers';
 import * as moment from 'moment';
 import { ConfigService } from '@nestjs/config';
+import { Article } from 'src/article/entities/article.entity';
+import { Category } from './dto/category.dto';
+import { CategoryService } from 'src/category/category.service';
 
 @Injectable()
 export class NextjsService {
@@ -12,20 +15,28 @@ export class NextjsService {
 
   constructor(
     private readonly articleService: ArticleService,
+    private readonly categoryService: CategoryService,
     private readonly configService: ConfigService,
   ) {
     this.CMS_URL = this.configService.get<string>('CMS_URL');
     this.CMS_URL = this.CMS_URL.replace('/api', '');
   }
 
-  async getDataHomepage() {
+  async _getDataMainFeatured(): Promise<{
+    heroArticle: Array<Article>;
+    subArticle: Array<Article>;
+  }> {
     const articleData = await this.articleService.getAllArticle({
       sort_by: 'most_interactive',
       page: 1,
       items_per_page: 6,
     });
 
-    if (_.isEmpty(articleData)) return [];
+    if (_.isEmpty(articleData))
+      return {
+        heroArticle: [],
+        subArticle: [],
+      };
 
     const convertData = (article) => {
       const {
@@ -41,17 +52,18 @@ export class NextjsService {
         : 'https://picsum.photos/1170/835';
       const categoryName = categoryId?.name ?? 'Default';
       const categoryUrl = categoryId?.slug ?? '/';
-      const datePublic = moment(publishedAt).format('MMMM D, YYYY');
+      const datePublished = moment(publishedAt).format('MMMM D, YYYY');
       const pathAlias = slug ?? '/';
       return {
         imageUrl,
         categoryName,
         categoryUrl,
-        datePublic,
+        datePublished,
         title,
         pathAlias,
       };
     };
+
     const heroArticle = _.take(articleData, 2).map((article) =>
       convertData(article),
     );
@@ -63,6 +75,173 @@ export class NextjsService {
           )
         : [];
 
+    return { heroArticle, subArticle };
+  }
+
+  async _getDataTrending() {
+    const listCategory = await this.categoryService.getAllCategory();
+    if (_.isEmpty(listCategory)) return [];
+
+    const convertData = (category) => {
+      const { thumbnail, slug, name, id } = category;
+
+      const imageUrl = thumbnail?.url
+        ? `${this.CMS_URL}${String(thumbnail?.url)}`
+        : 'https://picsum.photos/1170/835';
+      const categoryName = name ?? 'Default';
+      const categoryUrl = slug ?? '/';
+
+      return {
+        id,
+        imageUrl,
+        categoryName,
+        categoryUrl,
+      };
+    };
+
+    const data = listCategory.map((category) => convertData(category));
+
+    return data;
+  }
+
+  _convertData = (article) => {
+    const {
+      thumbnail,
+      categoryId,
+      publishedAt,
+      title = 'Missing title',
+      slug,
+      author,
+      shortDescription,
+    } = article;
+
+    const imageUrl = thumbnail?.url
+      ? `${this.CMS_URL}${String(thumbnail?.url)}`
+      : 'https://picsum.photos/1170/835';
+    const categoryName = categoryId?.name ?? 'Default';
+    const categoryUrl = categoryId?.slug ?? '/';
+    const datePublished = moment(publishedAt).format('MMMM D, YYYY');
+    const pathAlias = slug ?? '/';
+    const authorUrl = author?.id ? `/${author?.id}` : '';
+    const authorName = author?.authorName ?? `Admin`;
+    const authorAvarta = author?.avatar?.url
+      ? `${this.CMS_URL}${String(author?.avatar?.url)}`
+      : 'https://picsum.photos/1170/835';
+    const createdDate = moment(publishedAt).fromNow();
+
+    return {
+      imageUrl,
+      categoryName,
+      categoryUrl,
+      datePublished,
+      title,
+      pathAlias,
+      authorUrl,
+      authorName,
+      authorAvarta,
+      createdDate,
+      description: shortDescription,
+    };
+  };
+
+  async _getDataArticles(): Promise<{
+    populars: Array<Article>;
+    recents: Array<Article>;
+    galerys: Array<Article>;
+  }> {
+    const popularsData = await this.articleService.getAllArticle({
+      sort_by: 'popular',
+      page: 1,
+      items_per_page: 6,
+    });
+
+    const recentsData = await this.articleService.getAllArticle({
+      sort_by: 'recently',
+      page: 1,
+      items_per_page: 5,
+    });
+
+    //TODO
+    const galerysData = [];
+
+    const populars = returnEmptyData(
+      pickFieldsOnArrayObject(
+        popularsData?.map((item) => this._convertData(item)),
+        ['imageUrl', 'url', 'title', 'datePublished'],
+      ),
+    );
+
+    const recents = returnEmptyData(
+      recentsData?.map((item) => this._convertData(item)),
+    );
+    const galerys = returnEmptyData(
+      galerysData?.map((item) => this._convertData(item)),
+    );
+
+    return { populars, recents, galerys };
+  }
+
+  async _getDataEditorPicked(): Promise<{
+    carousels: Array<Article>;
+    relevantArticles: Array<Article>;
+  }> {
+    const editorPickedData = await this.articleService.getAllArticle({
+      sort_by: 'editor_picked',
+      page: 1,
+      items_per_page: 6,
+    });
+
+    if (_.isEmpty(editorPickedData))
+      return {
+        carousels: [],
+        relevantArticles: [],
+      };
+
+    const carousels = _.orderBy(
+      editorPickedData.filter(
+        (article) => article?.editorPicked?.isCarousel === true,
+      ),
+      ['priority'],
+      'asc',
+    );
+    const relevantArticles = _.orderBy(
+      editorPickedData.filter(
+        (article) => article?.editorPicked?.isCarousel === false,
+      ),
+      ['priority'],
+      'asc',
+    );
+
+    return {
+      carousels: returnEmptyData(
+        pickFieldsOnArrayObject(
+          carousels?.map((item) => this._convertData(item)),
+          [
+            'categoryUrl',
+            'categoryName',
+            'createdDate',
+            'title',
+            'url',
+            'description',
+            'imageUrl',
+          ],
+        ),
+      ),
+      relevantArticles: returnEmptyData(
+        pickFieldsOnArrayObject(
+          relevantArticles?.map((item) => this._convertData(item)),
+          ['imageUrl', 'title', 'datePublished', 'url'],
+        ),
+      ),
+    };
+  }
+
+  async getDataHomepage() {
+    const { heroArticle, subArticle } = await this._getDataMainFeatured();
+    const trending = await this._getDataTrending();
+    const { populars, recents, galerys } = await this._getDataArticles();
+    const { carousels, relevantArticles } = await this._getDataEditorPicked();
+
     const data = {
       response: {
         data: {
@@ -70,273 +249,86 @@ export class NextjsService {
             heroArticle,
             subArticle,
           },
-          trending: [
-            {
-              imageUrl: 'https://picsum.photos/133/160',
-              categoryName: 'Travel',
-              categoryUrl: '/travel',
-            },
-            {
-              imageUrl: 'https://picsum.photos/133/160',
-              categoryName: 'Lifestyle',
-              categoryUrl: '/travel',
-            },
-            {
-              imageUrl: 'https://picsum.photos/133/160',
-              categoryName: 'Animal',
-              categoryUrl: '/travel',
-            },
-            {
-              imageUrl: 'https://picsum.photos/133/160',
-              categoryName: 'Health',
-              categoryUrl: '/travel',
-            },
-            {
-              imageUrl: 'https://picsum.photos/133/160',
-              categoryName: 'Food',
-              categoryUrl: '/travel',
-            },
-            {
-              imageUrl: 'https://picsum.photos/133/160',
-              categoryName: 'Sport',
-              categoryUrl: '/travel',
-            },
-            {
-              imageUrl: 'https://picsum.photos/133/160',
-              categoryName: 'Home Decor',
-              categoryUrl: '/travel',
-            },
-          ],
+          trending,
           adbanner: [],
-          articles: {
-            populars: [
-              {
-                imageUrl: 'https://picsum.photos/112/112',
-                url: 'single.html',
-                title:
-                  ' 9 Things I Love About Shaving My Head During Quarantine',
-                datePublished: 'September 15, 2021',
-              },
-              {
-                imageUrl: 'https://picsum.photos/112/112',
-                url: 'single.html',
-                title: 'Where to Score the Best Travel Deals on Cyber Monday',
-                datePublished: 'November 12, 2021',
-              },
-              {
-                imageUrl: 'https://picsum.photos/112/112',
-                url: 'single.html',
-                title:
-                  '5 Kinds of Food-Shamers You Will Encounter (and How to Deal)',
-                datePublished: 'April 10, 2021',
-              },
-              {
-                imageUrl: 'https://picsum.photos/112/112',
-                url: 'single.html',
-                title:
-                  '12 Best Books to Read at the Beach (or Anywhere) This Summer',
-                datePublished: 'June 15, 2021',
-              },
-            ],
-            recents: [
-              {
-                imageUrl: 'https://picsum.photos/500/500',
-                url: 'single.html',
-                categoryName: 'Fashion',
-                categoryUrl: 'category.html',
-                title: 'Beachmaster Elephant Seal Fights achmaster Elephant',
-                authorUrl: 'page-author.html',
-                authorName: 'Kate Adie',
-                authorAvarta: 'https://picsum.photos/32/32',
-                createdDate: '5 minutes ago',
-              },
-              {
-                imageUrl: 'https://picsum.photos/500/500',
-                url: 'single.html',
-                categoryName: 'Travel',
-                categoryUrl: 'category.html',
-                title:
-                  'After a Few Dates, They Traveled to the Other Side of the World',
-                authorUrl: 'page-author.html',
-                authorName: 'Aten Joun',
-                authorAvarta: 'https://picsum.photos/32/32',
-                createdDate: '12 minutes ago',
-              },
-              {
-                imageUrl: 'https://picsum.photos/500/500',
-                url: 'single.html',
-                categoryName: 'Health',
-                categoryUrl: 'category.html',
-                title: "Jessamyn Stanley's 5-Minute Yoga for Beginners",
-                authorUrl: 'page-author.html',
-                authorName: 'J. Anna',
-                authorAvarta: 'https://picsum.photos/32/32',
-                createdDate: '3 days ago',
-              },
-              {
-                imageUrl: 'https://picsum.photos/500/500',
-                url: 'single.html',
-                categoryName: 'Kitchen',
-                categoryUrl: 'category.html',
-                title: 'How an MS Diagnosis Changed My Relationship With Food',
-                authorUrl: 'page-author.html',
-                authorName: 'Kasumi',
-                authorAvarta: 'https://picsum.photos/32/32',
-                createdDate: 'September 19, 2021',
-              },
-            ],
-            galerys: [
-              {
-                url: '/imgs/thumbnail-3.jpg',
-                imageUrl: 'https://picsum.photos/500/500',
-              },
-              {
-                url: '/imgs/thumbnail-3.jpg',
-                imageUrl: 'https://picsum.photos/500/500',
-              },
-              {
-                url: '/imgs/thumbnail-3.jpg',
-                imageUrl: 'https://picsum.photos/500/500',
-              },
-              {
-                url: '/imgs/thumbnail-3.jpg',
-                imageUrl: 'https://picsum.photos/500/500',
-              },
-              {
-                url: '/imgs/thumbnail-3.jpg',
-                imageUrl: 'https://picsum.photos/500/500',
-              },
-              {
-                url: '/imgs/thumbnail-3.jpg',
-                imageUrl: 'https://picsum.photos/500/500',
-              },
-            ],
+          recentArticles: {
+            populars,
+            recents,
+            galerys,
           },
           editorPicked: {
-            carousels: [
-              {
-                categoryUrl: 'category.html',
-                categoryName: 'Lifestyle',
-                createdDate: 'September 15, 2021',
-                title: 'The 28 Best Skincare Products of 2021',
-                url: 'single.html',
-                description:
-                  'Tempus ultricies augue luctus et ut suscipit. Morbi arcu, ultrices purus dolor erat bibendum sapien metus. Sit mi, pharetra, morbi arcu id. Pellentesque dapibus nibh augue senectus. Ad pri docendi aliquando, per an minim novum fuisset, eam doctus accumsan ad. Id veritus tibique per',
-                imageUrl: 'https://picsum.photos/474/517',
-              },
-              {
-                categoryUrl: 'category.html',
-                categoryName: 'Beauty',
-                createdDate: ' September 15, 2021',
-                title: 'Rice Water for Hair Growth: Does It Actually Work?',
-                url: 'single.html',
-                description:
-                  'Qualisque persecuti eu vis. Et his eruditi fastidii gloriatur. In nec aliquam lobortis definitionem, aeterno qualisque appellantur ea sea',
-                imageUrl: 'https://picsum.photos/474/517',
-              },
-              {
-                categoryUrl: 'category.html',
-                categoryName: 'Music',
-                createdDate: 'September 15, 2021',
-                title: '5 Science-Backed Reasons Why Music is Good for You',
-                url: 'single.html',
-                description:
-                  ' An vis natum detracto nominati, ei mundi animal definitionem his, saepe indoctum pericula an sea. Vix ut admodum nostrum fastidii.',
-                imageUrl: 'https://picsum.photos/474/517',
-              },
-            ],
-            relevantArticles: [
-              {
-                imageUrl: 'https://picsum.photos/112/112',
-                url: 'single.html',
-                title:
-                  '12 Best Books to Read at the Beach (or Anywhere) This Summer',
-                datePublished: 'September 15, 2021',
-              },
-              {
-                imageUrl: 'https://picsum.photos/112/112',
-                url: 'single.html',
-                title:
-                  '9 Things I Love About Shaving My Head During Quarantine',
-                datePublished: 'September 15, 2021',
-              },
-              {
-                imageUrl: 'https://picsum.photos/112/112',
-                url: 'single.html',
-                title: 'Rice Water for Hair Growth: Does It Actually Work?',
-                datePublished: 'January 14, 2021',
-              },
-            ],
+            carousels,
+            relevantArticles,
           },
-          interesting: [
-            {
-              imageUrl: 'https://picsum.photos/540/320',
-              categoryUrl: 'category.html',
-              categoryName: 'Lifestyle',
-              postedBy: '27 August',
-              title:
-                '  After a Few Dates, They Traveled to the Other Side of the World',
-              authorName: 'Kate Adie',
-              authorAvarta: 'https://picsum.photos/32/32',
-              timeReading: '6 mins to read',
-            },
-            {
-              imageUrl: 'https://picsum.photos/540/320',
-              categoryUrl: 'category.html',
-              categoryName: 'Healthy',
-              postedBy: '28 August',
-              title: "  Jessamyn Stanley's 5-Minute Yoga for Beginners",
-              authorName: 'Kate Adie',
-              authorAvarta: 'https://picsum.photos/32/32',
-              timeReading: '6 mins to read',
-            },
-            {
-              imageUrl: 'https://picsum.photos/540/320',
-              categoryUrl: 'category.html',
-              categoryName: 'Food',
-              postedBy: '02 September',
-              title: '  How an MS Diagnosis Changed My Relationship With Food',
-              authorName: 'Kate Adie',
-              authorAvarta: 'https://picsum.photos/32/32',
-              timeReading: '6 mins to read',
-            },
-            {
-              imageUrl: 'https://picsum.photos/540/320',
-              categoryUrl: 'category.html',
-              categoryName: ' Travel Tips',
-              postedBy: '05 September',
-              title: '  Where to Score the Best Travel Deals on Cyber Monday',
-              authorName: 'Kate Adie',
-              authorAvarta: 'https://picsum.photos/32/32',
-              timeReading: '6 mins to read',
-            },
-          ],
-          instagramFeatured: [
-            {
-              imageUrl: 'https://picsum.photos/290/207',
-              authorAvarta: 'https://picsum.photos/32/32',
-              authorName: 'Kate Adie',
-              postedBy: '3 minutes ago',
-            },
-            {
-              imageUrl: 'https://picsum.photos/290/207',
-              authorAvarta: 'https://picsum.photos/32/32',
-              authorName: 'Kate Adie',
-              postedBy: '3 minutes ago',
-            },
-            {
-              imageUrl: 'https://picsum.photos/290/207',
-              authorAvarta: 'https://picsum.photos/32/32',
-              authorName: 'Kate Adie',
-              postedBy: '3 minutes ago',
-            },
-            {
-              imageUrl: 'https://picsum.photos/290/207',
-              authorAvarta: 'https://picsum.photos/32/32',
-              authorName: 'Kate Adie',
-              postedBy: '3 minutes ago',
-            },
-          ],
+          // interesting: [
+          //   {
+          //     imageUrl: 'https://picsum.photos/540/320',
+          //     categoryUrl: 'category.html',
+          //     categoryName: 'Lifestyle',
+          //     postedBy: '27 August',
+          //     title:
+          //       '  After a Few Dates, They Traveled to the Other Side of the World',
+          //     authorName: 'Kate Adie',
+          //     authorAvarta: 'https://picsum.photos/32/32',
+          //     timeReading: '6 mins to read',
+          //   },
+          //   {
+          //     imageUrl: 'https://picsum.photos/540/320',
+          //     categoryUrl: 'category.html',
+          //     categoryName: 'Healthy',
+          //     postedBy: '28 August',
+          //     title: "  Jessamyn Stanley's 5-Minute Yoga for Beginners",
+          //     authorName: 'Kate Adie',
+          //     authorAvarta: 'https://picsum.photos/32/32',
+          //     timeReading: '6 mins to read',
+          //   },
+          //   {
+          //     imageUrl: 'https://picsum.photos/540/320',
+          //     categoryUrl: 'category.html',
+          //     categoryName: 'Food',
+          //     postedBy: '02 September',
+          //     title: '  How an MS Diagnosis Changed My Relationship With Food',
+          //     authorName: 'Kate Adie',
+          //     authorAvarta: 'https://picsum.photos/32/32',
+          //     timeReading: '6 mins to read',
+          //   },
+          //   {
+          //     imageUrl: 'https://picsum.photos/540/320',
+          //     categoryUrl: 'category.html',
+          //     categoryName: ' Travel Tips',
+          //     postedBy: '05 September',
+          //     title: '  Where to Score the Best Travel Deals on Cyber Monday',
+          //     authorName: 'Kate Adie',
+          //     authorAvarta: 'https://picsum.photos/32/32',
+          //     timeReading: '6 mins to read',
+          //   },
+          // ],
+          // instagramFeatured: [
+          //   {
+          //     imageUrl: 'https://picsum.photos/290/207',
+          //     authorAvarta: 'https://picsum.photos/32/32',
+          //     authorName: 'Kate Adie',
+          //     postedBy: '3 minutes ago',
+          //   },
+          //   {
+          //     imageUrl: 'https://picsum.photos/290/207',
+          //     authorAvarta: 'https://picsum.photos/32/32',
+          //     authorName: 'Kate Adie',
+          //     postedBy: '3 minutes ago',
+          //   },
+          //   {
+          //     imageUrl: 'https://picsum.photos/290/207',
+          //     authorAvarta: 'https://picsum.photos/32/32',
+          //     authorName: 'Kate Adie',
+          //     postedBy: '3 minutes ago',
+          //   },
+          //   {
+          //     imageUrl: 'https://picsum.photos/290/207',
+          //     authorAvarta: 'https://picsum.photos/32/32',
+          //     authorName: 'Kate Adie',
+          //     postedBy: '3 minutes ago',
+          //   },
+          // ],
         },
       },
     };

@@ -4,7 +4,6 @@ import { jwtConstants } from 'src/common/constants';
 import { StrapiService } from 'src/strapi/strapi.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import CacheManager from 'src/cache/CacheManager';
 
 @Module({
   imports: [
@@ -12,8 +11,9 @@ import CacheManager from 'src/cache/CacheManager';
       global: true,
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '3600s' },
-    })],
+    }),
+  ],
   controllers: [AuthController],
-  providers: [AuthService, StrapiService, CacheManager],
+  providers: [AuthService, StrapiService],
 })
-export class AuthModule { }
+export class AuthModule {}

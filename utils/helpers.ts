@@ -24,3 +24,24 @@ export const cleanData = (data) => {
 };
 
 export const _ = lodash;
+
+export const returnEmptyData = (data) => {
+  if (!Array.isArray(data)) throw new Error('Your data is not type array');
+
+  if (lodash.isEmpty(data)) return [];
+  return data;
+};
+
+export const pickFieldsOnArrayObject = (
+  data: Array<Object>,
+  fieldsToPick: Array<Object>,
+) => {
+  const currentData = [];
+
+  data.forEach((item) => {
+    const currentItem = lodash.pick(item, fieldsToPick);
+    currentData.push(currentItem);
+  });
+
+  return currentData;
+};

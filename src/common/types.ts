@@ -3,4 +3,5 @@ export enum SortBy {
   RECENTLY = 'recently',
   POPULAR = 'popular',
   DEFAULT = 'default',
+  EDITOR_PICKED = 'editor_picked',
 }

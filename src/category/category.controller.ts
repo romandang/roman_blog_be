@@ -18,7 +18,7 @@ export class CategoryController {
       res.send(
         customResponse({
           statusCode: HttpStatus.OK,
-          data: response.data,
+          data: response,
         }),
       );
     } catch (error) {

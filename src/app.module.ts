@@ -6,7 +6,6 @@ import { AuthModule } from './auth/auth.module';
 import { ArticleModule } from './article/article.module';
 import { CategoryModule } from './category/category.module';
 import { InteractiveModule } from './interactive/interactive.module';
-import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { NextjsModule } from './nextjs/nextjs.module';
 
@@ -15,9 +14,6 @@ import { NextjsModule } from './nextjs/nextjs.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    CacheModule.register({
-      isGlobal: true
-    }),
     AuthModule,
     ArticleModule,
     CategoryModule,
@@ -25,9 +21,6 @@ import { NextjsModule } from './nextjs/nextjs.module';
     NextjsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, {
-    provide: APP_INTERCEPTOR,
-    useClass: CacheInterceptor,
-  }],
+  providers: [AppService],
 })
 export class AppModule {}

@@ -14,7 +14,6 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
-import CacheManager from 'src/cache/CacheManager';
 import { customResponse } from 'src/common/common';
 import { ERROR_MESSAGE, MESSAGE } from 'src/common/constants';
 import { getUserIdFromJwt } from 'utils/helpers';
@@ -23,13 +22,16 @@ import { AuthService } from './auth.service';
 import { SignInDTO } from './dto/sign-in.dto';
 import { SignUpDTO } from './dto/sign-up.dto';
 import { UpdateProfileDTO } from './dto/update-profile.dto';
-import { get } from 'lodash/get'
+import { get } from 'lodash/get';
 
 @ApiTags('Auth')
-@ApiBearerAuth("JWT-auth")
+@ApiBearerAuth('JWT-auth')
 @Controller('/api/auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService, private jwtService: JwtService, private cacheManager: CacheManager) {}
+  constructor(
+    private readonly authService: AuthService,
+    private jwtService: JwtService,
+  ) {}
 
   @Post('/signUp')
   async SignUp(@Body() createAuthDto: SignUpDTO, @Res() res: Response) {
@@ -61,7 +63,7 @@ export class AuthController {
         ...createAuthDto,
         id: getUserIdFromJwt(response?.jwt),
       });
-      
+
       res.status(HttpStatus.OK);
       return res.send(
         customResponse({
@@ -84,15 +86,23 @@ export class AuthController {
 
   @UseGuards(AuthGuard)
   @Get('/getUserInfo')
-  async GetUserInfo(@Req() req: Request ,@Res() res: Response) {
+  async GetUserInfo(@Req() req: Request, @Res() res: Response) {
     try {
       const token = req.headers.authorization;
 
-      if (!token) throw new UnauthorizedException("Unauthorize")
+      if (!token) throw new UnauthorizedException('Unauthorize');
 
       const id = getUserIdFromJwt(token);
       const response = await this.authService.getUserInfo(id);
-      const { email, authorName, firstName, lastName, alias, phoneNumber, avatar } = response
+      const {
+        email,
+        authorName,
+        firstName,
+        lastName,
+        alias,
+        phoneNumber,
+        avatar,
+      } = response;
       res.status(HttpStatus.OK);
       return res.send(
         customResponse({
@@ -104,7 +114,7 @@ export class AuthController {
             lastName,
             alias,
             phoneNumber,
-            avatar
+            avatar,
           },
         }),
       );
@@ -118,7 +128,6 @@ export class AuthController {
       );
     }
   }
-  
 
   @ApiParam({
     name: 'id',

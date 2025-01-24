@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { METHOD } from 'src/common/constants';
-import { omitBy, isNil } from 'lodash'
+import { omitBy, isNil } from 'lodash';
 const qs = require('qs');
 
 type API = {
@@ -13,7 +13,7 @@ type API = {
     SIGN_UP: string;
     SIGN_IN: string;
     UPDATE_PROFILE: string;
-    GET_USER_INFO: string
+    GET_USER_INFO: string;
   };
   CATEGORY: {
     GET_ALL_CATEGORY: string;
@@ -46,7 +46,7 @@ export class StrapiService {
         GET_USER_INFO: `${this.CMS_URL}/users`,
       },
       CATEGORY: {
-        GET_ALL_CATEGORY: `${this.CMS_URL}/categories`,
+        GET_ALL_CATEGORY: `${this.CMS_URL}/custom-category/getAllCategory`,
       },
       INTERACTIVE: {
         COMMENT: `${this.CMS_URL}/custom-article/comment`,
@@ -88,7 +88,7 @@ export class StrapiService {
       return response;
     } catch (error) {
       throw error;
-    }   
+    }
   }
 
   async signIn(data) {
@@ -97,7 +97,7 @@ export class StrapiService {
         method: METHOD.POST,
         body: JSON.stringify({
           identifier: data.username,
-          password: data.password
+          password: data.password,
         }),
       });
       return response;
@@ -125,7 +125,7 @@ export class StrapiService {
     try {
       const response = await this.fetchData(
         `${this.API.USER.GET_USER_INFO}/${userId}?&populate[0]=avatar`,
-{method:METHOD.GET}
+        { method: METHOD.GET },
       );
       return response;
     } catch (error) {
