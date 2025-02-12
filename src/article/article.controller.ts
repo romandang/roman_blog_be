@@ -51,7 +51,7 @@ export class ArticleController {
         category,
         userId,
         page,
-        items_per_page: itemPerPage
+        items_per_page: itemPerPage,
       });
       res.status(HttpStatus.OK);
       return res.send(
@@ -108,6 +108,31 @@ export class ArticleController {
         customResponse({
           statusCode: HttpStatus.OK,
           data: response.data,
+        }),
+      );
+    } catch (error) {
+      res.status(error.status);
+      return res.send(
+        customResponse({
+          statusCode: error.status,
+          message:
+            error.status === HttpStatus.BAD_REQUEST
+              ? ERROR_MESSAGE.GENERAL.INVALID_REQUEST
+              : ERROR_MESSAGE.GENERAL.OTHER,
+        }),
+      );
+    }
+  }
+
+  @Get('/getFilterConfig')
+  async getFilterConfig(@Res() res: Response) {
+    try {
+      const response = await this.articleService.getFilterConfig();
+      res.status(HttpStatus.OK);
+      res.send(
+        customResponse({
+          statusCode: HttpStatus.OK,
+          data: response,
         }),
       );
     } catch (error) {

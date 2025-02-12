@@ -31,4 +31,13 @@ export class ArticleService {
       return error;
     }
   }
+
+  async getFilterConfig() {
+    try {
+      const response = await this.strapiService.getFilterConfig();
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
