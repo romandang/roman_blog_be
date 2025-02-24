@@ -99,6 +99,31 @@ export class ArticleController {
     }
   }
 
+  @Get('/getArticleBySlug/:slug')
+  async getArticleBySlug(@Param('slug') slug: string, @Res() res: Response) {
+    try {
+      const response = await this.articleService.getArticleBySlug(slug);
+      res.status(HttpStatus.OK);
+      res.send(
+        customResponse({
+          statusCode: HttpStatus.OK,
+          data: response,
+        }),
+      );
+    } catch (error) {
+      res.status(error.status);
+      return res.send(
+        customResponse({
+          statusCode: error.status,
+          message:
+            error.status === HttpStatus.BAD_REQUEST
+              ? ERROR_MESSAGE.GENERAL.INVALID_REQUEST
+              : ERROR_MESSAGE.GENERAL.OTHER,
+        }),
+      );
+    }
+  }
+
   @Get('/getAllCommentByArticle/:id')
   async getAllCommentByArticle(@Param('id') id: string, @Res() res: Response) {
     try {

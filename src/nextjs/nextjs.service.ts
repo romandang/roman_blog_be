@@ -35,20 +35,4 @@ export class NextjsService {
       },
     };
   }
-
-  findAll() {
-    return `This action returns all nextjs`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} nextj`;
-  }
-
-  update(id: number, updateNextjDto: UpdateNextjDto) {
-    return `This action updates a #${id} nextj`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} nextj`;
-  }
 }

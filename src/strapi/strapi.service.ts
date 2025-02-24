@@ -9,6 +9,7 @@ type API = {
     GET_ALL_ARTICLE: string;
     GET_ALL_COMMENT_BY_ARTICLE: string;
     GET_FILTER_CONFIG: string;
+    GET_ARTICLE_BY_SLUG: string;
   };
   USER: {
     SIGN_UP: string;
@@ -38,6 +39,7 @@ export class StrapiService {
     this.API = {
       ARTICLE: {
         GET_ALL_ARTICLE: `${this.CMS_URL}/custom-article/getTopArticle`,
+        GET_ARTICLE_BY_SLUG: `${this.CMS_URL}/custom-article/getArticleBySlug`,
         GET_ALL_COMMENT_BY_ARTICLE: `${this.CMS_URL}/commentings?populate=userId&filters[articleId][id][$eq]`,
         GET_FILTER_CONFIG: `${this.CMS_URL}/custom-article/getFilterConfig`,
       },
@@ -154,6 +156,20 @@ export class StrapiService {
     try {
       const response = await this.fetchData(
         `${this.API.ARTICLE.GET_ALL_ARTICLE}/${id}`,
+        {
+          method: METHOD.GET,
+        },
+      );
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getArticleBySlug(slug) {
+    try {
+      const response = await this.fetchData(
+        `${this.API.ARTICLE.GET_ARTICLE_BY_SLUG}/${slug}`,
         {
           method: METHOD.GET,
         },

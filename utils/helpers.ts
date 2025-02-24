@@ -11,7 +11,7 @@ export const getUserIdFromJwt = (jwt) => {
 };
 
 export const cleanData = (data) => {
-  if (typeof data !== 'object' || !data) return data;
+  if (typeof data !== 'object' || !data || Array.isArray(data)) return data;
   const newObj = {};
 
   for (const key of Object.keys(data)) {
