@@ -2,6 +2,13 @@ import { Injectable } from '@nestjs/common';
 import * as moment from 'moment';
 import { StrapiService } from 'src/strapi/strapi.service';
 import { ConfigService } from '@nestjs/config';
+import {
+  _,
+  formatArticleResponse,
+  formatCommentResponse,
+  formatDate,
+} from 'utils/helpers';
+import { formatDateFromNow } from 'utils/helpers';
 @Injectable()
 export class ArticleService {
   private CMS_URL: string;
@@ -17,61 +24,25 @@ export class ArticleService {
   async getAllArticle(params) {
     try {
       const response = await this.strapiService.getAllArticle(params);
-      const data = response.map((article) => {
-        return {
-          ...article,
-          imageUrl: article.thumbnail?.url
-            ? `${this.CMS_URL}${String(article.thumbnail?.url)}`
-            : 'https://picsum.photos/1170/835',
-          categoryName: article.categoryId?.name ?? 'Default',
-          categoryUrl: article.categoryId?.slug ?? '/',
-          datePublished: moment(article.publishedAt).format('MMMM D, YYYY'),
-          pathAlias: article.slug ?? '/',
-          createdDate: moment(article.publishedAt).fromNow(),
-          authorUrl: article.author?.id ? `/${article.author?.id}` : '',
-          authorName: article.author?.authorName ?? `Admin`,
-          authorAvarta: article.author?.avatar?.url
-            ? `${this.CMS_URL}${String(article.author?.avatar?.url)}`
-            : 'https://picsum.photos/1170/835',
-          timeReading: `${article.timeReading || 1} min to read`,
-        };
-      });
-      return data;
+      return response.map(formatArticleResponse.bind(this, this.CMS_URL));
     } catch (error) {
       throw error;
     }
   }
 
-  async getArticleById(id) {
+  async getArticleById(id: string) {
     try {
       const response = await this.strapiService.getArticleById(id);
-      return response;
+      return formatArticleResponse(response, this.CMS_URL);
     } catch (error) {
       throw error;
     }
   }
 
-  async getArticleBySlug(slug) {
+  async getArticleBySlug(slug: string) {
     try {
       const response = await this.strapiService.getArticleBySlug(slug);
-      return {
-        ...response,
-        imageUrl: response.thumbnail?.url
-          ? `${this.CMS_URL}${String(response.thumbnail?.url)}`
-          : 'https://picsum.photos/1170/835',
-        categoryName: response.categoryId?.name ?? 'Default',
-        categoryUrl: response.categoryId?.slug ?? '/',
-        datePublished: moment(response.publishedAt).format('MMMM D, YYYY'),
-        pathAlias: response.slug ?? '/',
-        createdDate: moment(response.publishedAt).fromNow(),
-        authorUrl: response.author?.id ? `/${response.author?.id}` : '',
-        authorName: response.author?.authorName ?? `Admin`,
-        authorAvarta: response.author?.avatar?.url
-          ? `${this.CMS_URL}${String(response.author?.avatar?.url)}`
-          : 'https://picsum.photos/1170/835',
-        timeReading: `${response.timeReading || 1} min to read`,
-        content: response.content,
-      };
+      return formatArticleResponse(response, this.CMS_URL);
     } catch (error) {
       throw error;
     }
@@ -80,7 +51,8 @@ export class ArticleService {
   async getAllCommentByArticle(id) {
     try {
       const response = await this.strapiService.getAllCommentByArticle(id);
-      return response;
+      const data = formatCommentResponse(response, this.CMS_URL);
+      return data;
     } catch (error) {
       return error;
     }

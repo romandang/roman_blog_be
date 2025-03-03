@@ -40,7 +40,7 @@ export class StrapiService {
       ARTICLE: {
         GET_ALL_ARTICLE: `${this.CMS_URL}/custom-article/getTopArticle`,
         GET_ARTICLE_BY_SLUG: `${this.CMS_URL}/custom-article/getArticleBySlug`,
-        GET_ALL_COMMENT_BY_ARTICLE: `${this.CMS_URL}/commentings?populate=userId&filters[articleId][id][$eq]`,
+        GET_ALL_COMMENT_BY_ARTICLE: `${this.CMS_URL}/custom-article/getAllCommentByArticle`,
         GET_FILTER_CONFIG: `${this.CMS_URL}/custom-article/getFilterConfig`,
       },
       USER: {
@@ -245,7 +245,7 @@ export class StrapiService {
   async getAllCommentByArticle(id) {
     try {
       const response = await this.fetchData(
-        `${this.API.ARTICLE.GET_ALL_COMMENT_BY_ARTICLE}=${id}`,
+        `${this.API.ARTICLE.GET_ALL_COMMENT_BY_ARTICLE}/${id}`,
         {
           method: METHOD.GET,
         },
