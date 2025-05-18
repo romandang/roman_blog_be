@@ -58,21 +58,30 @@ export const formatDateFromNow = (date) => {
 export const formatCommentResponse = (data, CMS_URL = '') => {
   if (!Array.isArray(data)) return [];
 
+  const format = (item) => ({
+    ..._.omit(item, [
+      'author',
+      'userId',
+      'createdAt',
+      'updatedAt',
+      'publishedAt',
+    ]),
+    createdDate: formatDateFromNow(item.publishedAt),
+    authorName: item.author?.authorName ?? 'Admin',
+    authorAvatar: item.author?.avatar?.url
+      ? `${CMS_URL}${String(item.author?.avatar?.url)}`
+      : 'https://picsum.photos/835/835',
+    authorUrl: item.author?.id ? `/${item.author?.id}` : '',
+  });
+
   return data?.map((item) => {
     return {
-      ..._.omit(item, [
-        'author',
-        'userId',
-        'createdAt',
-        'updatedAt',
-        'publishedAt',
-      ]),
-      createdDate: formatDateFromNow(item.publishedAt),
-      authorName: item.author?.authorName ?? 'Admin',
-      authorAvatar: item.author?.avatar?.url
-        ? `${CMS_URL}${String(item.author?.avatar?.url)}`
-        : 'https://picsum.photos/835/835',
-      authorUrl: item.author?.id ? `/${item.author?.id}` : '',
+      ...format(item),
+      replyComments: item.replyComments.map((replyComment) => {
+        return {
+          ...format(replyComment),
+        };
+      }),
     };
   });
 };
@@ -88,11 +97,14 @@ export const formatArticleResponse = (article: any, CMS_URL = '') => {
     datePublished: formatDate(article.publishedAt),
     pathAlias: article.slug ?? '/',
     createdDate: formatDateFromNow(article.publishedAt),
-    authorUrl: article.author?.id ? `/${article.author?.id}` : '',
-    authorName: article.author?.authorName ?? 'Admin',
-    authorAvarta: article.author?.avatar?.url
-      ? `${CMS_URL}${String(article.author?.avatar?.url)}`
-      : 'https://picsum.photos/1170/835',
+    author: {
+      id: article.author?.id,
+      name: article.author?.authorName ?? 'Admin',
+      avatar: article.author?.avatar?.url
+        ? `${CMS_URL}${String(article.author?.avatar?.url)}`
+        : 'https://picsum.photos/1170/835',
+      url: article.author?.id ? `/${article.author?.id}` : '',
+    },
     timeReading: `${article.timeReading || 1} min to read`,
     content: article.content,
   };

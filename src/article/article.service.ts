@@ -24,7 +24,7 @@ export class ArticleService {
   async getAllArticle(params) {
     try {
       const response = await this.strapiService.getAllArticle(params);
-      return response.map(formatArticleResponse.bind(this, this.CMS_URL));
+      return response.map(item => formatArticleResponse(item, this.CMS_URL));
     } catch (error) {
       throw error;
     }

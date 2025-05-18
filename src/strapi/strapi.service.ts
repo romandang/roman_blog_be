@@ -22,6 +22,7 @@ type API = {
   };
   INTERACTIVE: {
     COMMENT: string;
+    REPLY_COMMENT: string;
     LIKE: string;
     VIEW: string;
   };
@@ -54,6 +55,7 @@ export class StrapiService {
       },
       INTERACTIVE: {
         COMMENT: `${this.CMS_URL}/custom-article/comment`,
+        REPLY_COMMENT: `${this.CMS_URL}/custom-article/replyComment`,
         LIKE: `${this.CMS_URL}/custom-article/like`,
         VIEW: `${this.CMS_URL}/custom-article/view`,
       },
@@ -197,6 +199,23 @@ export class StrapiService {
   async comment(id, data) {
     try {
       const response = await this.fetchData(`${this.API.INTERACTIVE.COMMENT}`, {
+        method: METHOD.POST,
+        body: JSON.stringify({
+          data: {
+            userId: id,
+            ...data,
+          },
+        }),
+      });
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async replyComment(id, data) {
+    try {
+      const response = await this.fetchData(`${this.API.INTERACTIVE.REPLY_COMMENT}`, {
         method: METHOD.POST,
         body: JSON.stringify({
           data: {

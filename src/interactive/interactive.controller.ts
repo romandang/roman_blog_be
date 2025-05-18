@@ -17,6 +17,7 @@ import { InteractiveService } from './interactive.service';
 import { customResponse } from 'src/common/common';
 import { ERROR_MESSAGE, MESSAGE } from 'src/common/constants';
 import { ConfigService } from '@nestjs/config';
+import { ReplyCommentInteractiveDto } from './dto/replyComment-interactive.dto';
 @ApiTags('Interactive')
 @ApiBearerAuth('JWT-auth')
 @Controller('/api/interactive')
@@ -46,6 +47,47 @@ export class InteractiveController {
       const response = await this.interactiveService.comment(
         id,
         commentInteractiveDto,
+      );
+      const data = response?.data;
+
+      res.status(HttpStatus.OK);
+      res.send(
+        customResponse({
+          statusCode: HttpStatus.OK,
+          message: MESSAGE.INTERACTIVE.COMMENT_SENT,
+          data,
+        }),
+      );
+    } catch (error) {
+      res.status(error.status);
+      res.send(
+        customResponse({
+          statusCode: error.status,
+          message:
+            error.status === HttpStatus.BAD_REQUEST
+              ? ERROR_MESSAGE.GENERAL.INVALID_REQUEST
+              : ERROR_MESSAGE.GENERAL.OTHER,
+        }),
+      );
+    }
+  }
+
+  @Post('/replyComment')
+  async replyComment(
+    @Req() req: Request,
+    @Body() replyCommentInteractiveDto: ReplyCommentInteractiveDto,
+    @Res() res: Response,
+  ) {
+    try {
+      if (!req.headers.authorization)
+        throw new HttpException('Unauthorize', HttpStatus.UNAUTHORIZED);
+
+      const jwt = req.headers.authorization.replace('Bearer ', '');
+      const id = getUserIdFromJwt(jwt);
+      
+      const response = await this.interactiveService.replyComment(
+        id,
+        replyCommentInteractiveDto,
       );
       const data = response?.data;
 

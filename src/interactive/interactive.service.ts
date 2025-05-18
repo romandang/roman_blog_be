@@ -6,6 +6,7 @@ import { LikeInteractiveDto } from './dto/like-interactive.dto';
 import { _, formatCommentResponse } from 'utils/helpers';
 import { formatDateFromNow } from 'utils/helpers';
 import { ConfigService } from '@nestjs/config';
+import { ReplyCommentInteractiveDto } from './dto/replyComment-interactive.dto';
 
 @Injectable()
 export class InteractiveService {
@@ -23,6 +24,20 @@ export class InteractiveService {
       const response = await this.strapiService.comment(
         id,
         commentInteractiveDto,
+      );
+
+      const data = formatCommentResponse(response?.data, this.CMS_URL);
+      return { ...response, data };
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async replyComment(id: string, replyCommentInteractiveDto: ReplyCommentInteractiveDto) {
+    try {
+      const response = await this.strapiService.replyComment(
+        id,
+        replyCommentInteractiveDto,
       );
 
       const data = formatCommentResponse(response?.data, this.CMS_URL);
