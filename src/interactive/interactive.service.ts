@@ -25,7 +25,6 @@ export class InteractiveService {
         id,
         commentInteractiveDto,
       );
-
       const data = formatCommentResponse(response?.data, this.CMS_URL);
       return { ...response, data };
     } catch (error) {

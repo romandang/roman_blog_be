@@ -38,7 +38,7 @@ export class NextjsController {
   @Get('/article')
   async getDataArticle(@Res() res: Response) {
     try {
-      const data = await this.nextjsService.getDataHomepage();
+      const data = await this.nextjsService.getDataArticle();
       res.status(HttpStatus.OK);
       return res.send(
         customResponse({

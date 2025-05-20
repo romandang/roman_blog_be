@@ -49,7 +49,6 @@ export class InteractiveController {
         commentInteractiveDto,
       );
       const data = response?.data;
-
       res.status(HttpStatus.OK);
       res.send(
         customResponse({
