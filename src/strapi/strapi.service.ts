@@ -35,7 +35,10 @@ export class StrapiService {
   private API: API;
 
   constructor(private configService: ConfigService) {
-    this.CMS_URL = this.configService.get<string>('CMS_URL');
+    this.CMS_URL =
+      this.configService.get<string>('CMS_INTERNAL_URL') ||
+      this.configService.get<string>('CMS_URL');
+      
     this.CMS_ADMIN_TOKEN = this.configService.get<string>('CMS_ADMIN_TOKEN');
     this.API = {
       ARTICLE: {

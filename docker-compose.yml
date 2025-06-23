@@ -1,0 +1,25 @@
+services:
+  nestjs:
+    container_name: roman_blog_be
+    build: .
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - BASE_URL=http://be.roman.localhost/api
+      - CMS_INTERNAL_URL=http://cms:1337/api
+      - CMS_URL=http://cms.roman.localhost/api
+      - CMS_ADMIN_TOKEN=ba6adc5efc22072991314b1dd1d37fbf2b45283ef1943061e31220fe7ee7c7400daba7adc81b0b71ab57d1155b3cf0072cd80d76cb42db57545017a6e36909807d3b5a007ce3445f1adae3de4538b3e9f20f8a5e233ba03defead9ab0cad1012949439be33b99e6ea04c1d0c020e086ac9d7bb7a60fd6156222b016e3ce876c9
+    restart: unless-stopped
+    expose:
+      - "3001"
+    networks:
+      - shared-net
+      
+networks:
+  shared-net:
+    external: true

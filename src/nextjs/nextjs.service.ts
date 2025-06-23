@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ArticleService } from 'src/article/article.service';
 import { CategoryService } from 'src/category/category.service';
-import { ArticlePage } from './models/articlePage.model';
-import { Homepage } from './models/homepage.model';
+import { ArticlePage } from 'src/nextjs/models/articlepage.model';
+import { Homepage } from 'src/nextjs/models/homepage.model';
 
 @Injectable()
 export class NextjsService {
