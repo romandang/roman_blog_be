@@ -20,7 +20,7 @@ async function bootstrap() {
     )
     .build();
 
-  app.enableCors({ origin: ['http://localhost:3000'] });
+  app.enableCors({ origin: ['http://ec2-44-211-153-110.compute-1.amazonaws.com:3000'] });
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
   await app.listen(3001);
