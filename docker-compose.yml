@@ -1,12 +1,9 @@
 services:
   nestjs:
     container_name: roman_blog_be
-    image: romandang/roman_blog_be:1.0.0
+    image: romandang/roman_system:be-1.0.0
     ports:
       - "3001:3001"
-    volumes:
-      - .:/app
-      - /app/node_modules
     environment:
       - NODE_ENV=production
       - PORT=3001
