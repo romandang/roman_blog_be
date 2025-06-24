@@ -4,6 +4,9 @@ services:
     image: romandang/roman_system:be-1.0.0
     ports:
       - "3001:3001"
+    volumes:
+      - .:/app
+      - /app/node_modules
     environment:
       - NODE_ENV=production
       - PORT=3001
