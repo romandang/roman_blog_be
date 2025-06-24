@@ -1,7 +1,7 @@
 services:
   nestjs:
     container_name: roman_blog_be
-    build: .
+    image: romandang/roman_blog_be:1.0.0
     ports:
       - "3001:3001"
     volumes:
@@ -10,9 +10,9 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3001
-      - BASE_URL=http://be.roman.localhost/api
-      - CMS_INTERNAL_URL=http://cms:1337/api
-      - CMS_URL=http://cms.roman.localhost/api
+      - BASE_URL=http://ec2-54-209-224-117.compute-1.amazonaws.com:3001/api
+      - CMS_INTERNAL_URL=http://ec2-13-222-150-81.compute-1.amazonaws.com:1337/api
+      - CMS_URL=http://ec2-13-222-150-81.compute-1.amazonaws.com:1337/api
       - CMS_ADMIN_TOKEN=ba6adc5efc22072991314b1dd1d37fbf2b45283ef1943061e31220fe7ee7c7400daba7adc81b0b71ab57d1155b3cf0072cd80d76cb42db57545017a6e36909807d3b5a007ce3445f1adae3de4538b3e9f20f8a5e233ba03defead9ab0cad1012949439be33b99e6ea04c1d0c020e086ac9d7bb7a60fd6156222b016e3ce876c9
     restart: unless-stopped
     expose:
