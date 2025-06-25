@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { METHOD } from 'src/common/constants';
 import { omitBy, isNil } from 'lodash';
+import { _ } from 'utils/helpers';
 const qs = require('qs');
 
 type API = {
@@ -25,6 +26,9 @@ type API = {
     REPLY_COMMENT: string;
     LIKE: string;
     VIEW: string;
+  };
+  GENERAL: {
+    GET_FOOTER: string;
   };
 };
 
@@ -61,6 +65,9 @@ export class StrapiService {
         REPLY_COMMENT: `${this.CMS_URL}/custom-article/replyComment`,
         LIKE: `${this.CMS_URL}/custom-article/like`,
         VIEW: `${this.CMS_URL}/custom-article/view`,
+      },
+      GENERAL: {
+        GET_FOOTER: `${this.CMS_URL}/custom-footer/getFooter`,
       },
     };
   }
@@ -286,6 +293,23 @@ export class StrapiService {
           method: METHOD.GET,
         },
       );
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getFooter() {
+    try {
+      const response = await this.fetchData(this.API.GENERAL.GET_FOOTER, {
+        method: METHOD.GET,
+      });
+      
+      // if (!_.isEmpty(response?.data?.attributes)) {
+      //   const data = _.omit(response.data.attributes, ['createdAt', 'updatedAt', 'publishedAt']);
+      //   return data;
+      // }
+
       return response;
     } catch (error) {
       throw error;
