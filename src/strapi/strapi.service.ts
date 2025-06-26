@@ -30,6 +30,9 @@ type API = {
   GENERAL: {
     GET_FOOTER: string;
   };
+  ABOUT_US: {
+    GET_ABOUT_US: string;
+  };
 };
 
 @Injectable()
@@ -68,6 +71,9 @@ export class StrapiService {
       },
       GENERAL: {
         GET_FOOTER: `${this.CMS_URL}/custom-footer/getFooter`,
+      },
+      ABOUT_US: {
+        GET_ABOUT_US: `${this.CMS_URL}/custom-aboutus/getAboutUs`,
       },
     };
   }
@@ -304,12 +310,18 @@ export class StrapiService {
       const response = await this.fetchData(this.API.GENERAL.GET_FOOTER, {
         method: METHOD.GET,
       });
-      
-      // if (!_.isEmpty(response?.data?.attributes)) {
-      //   const data = _.omit(response.data.attributes, ['createdAt', 'updatedAt', 'publishedAt']);
-      //   return data;
-      // }
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
 
+  async getAboutUs() {
+    try {
+      const response = await this.fetchData(this.API.ABOUT_US.GET_ABOUT_US, {
+        method: METHOD.GET,
+      });
+      console.log(response);
       return response;
     } catch (error) {
       throw error;

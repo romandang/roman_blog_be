@@ -35,6 +35,31 @@ export class NextjsController {
     }
   }
 
+  @Get('/about-us')
+  async getDataAboutUs(@Res() res: Response) {
+    try {
+      const data = await this.nextjsService.getDataAboutUs();
+      res.status(HttpStatus.OK);
+      return res.send(
+        customResponse({
+          statusCode: HttpStatus.OK,
+          data,
+        }),
+      );
+    } catch (error) {
+      res.status(error.status || 500);
+      return res.send(
+        customResponse({
+          statusCode: error.status,
+          message:
+            error.status === HttpStatus.BAD_REQUEST
+              ? ERROR_MESSAGE.GENERAL.INVALID_REQUEST
+              : ERROR_MESSAGE.GENERAL.OTHER,
+        }),
+      );
+    }
+  }
+
   @Get('/article')
   async getDataArticle(@Res() res: Response) {
     try {
