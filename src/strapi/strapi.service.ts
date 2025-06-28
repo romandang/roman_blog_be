@@ -321,7 +321,6 @@ export class StrapiService {
       const response = await this.fetchData(this.API.ABOUT_US.GET_ABOUT_US, {
         method: METHOD.GET,
       });
-      console.log(response);
       return response;
     } catch (error) {
       throw error;

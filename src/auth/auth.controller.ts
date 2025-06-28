@@ -64,12 +64,16 @@ export class AuthController {
         id: getUserIdFromJwt(response?.jwt),
       });
 
+      const decodedToken = this.jwtService.decode(jwt);
+      const expiredIn = decodedToken['exp'] * 1000;
+
       res.status(HttpStatus.OK);
       return res.send(
         customResponse({
           statusCode: HttpStatus.OK,
           data: {
             access_token: jwt,
+            expired_in: expiredIn
           },
         }),
       );
